@@ -60,12 +60,13 @@ public class ForecastDetailActivity extends AppCompatActivity {
         TextView lon = (TextView) findViewById(R.id.detail_long);
         TextView lat = (TextView) findViewById(R.id.detail_lat);
 
+
         int[][] states = new int[][] {
                 new int[] { android.R.attr.state_enabled},
         };
 
         int[] colors = new int[] {
-                Color.BLACK,
+                Color.WHITE,
         };
 
         int pos = getIntent().getIntExtra("position", 0);
@@ -142,7 +143,7 @@ public class ForecastDetailActivity extends AppCompatActivity {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(ForecastDetailActivity.this, "Check your internet connection.", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(ForecastDetailActivity.this, "Check your internet connection.", Toast.LENGTH_SHORT).show();
 
             }
 
@@ -163,15 +164,17 @@ public class ForecastDetailActivity extends AppCompatActivity {
                 Matcher m = patter.matcher(string);
                 m.matches();
                 if (m.find( )) real_url=m.group(2);
-
+else{
+                    real_url=null;
+                }
 
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(real_url.equals("")){
+            if(real_url!=null){
                 return real_url;
-            }
+            }else
            return DEFAUKT_IMG;
         }
     }
