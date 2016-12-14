@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#5cb2f7</color>
+    <color name="colorPrimaryDark">#1976d2</color>
+    <color name="colorAccent">#ffc400</color>
+
+    <color name="colorDay">#afdff1</color>
+    <color name="colorNight">#465A65</color>
+
+
+    <color name="tempMax">#F16021</color>
+    <color name="tempMin">#9b7da8</color>
+
+</resources>
