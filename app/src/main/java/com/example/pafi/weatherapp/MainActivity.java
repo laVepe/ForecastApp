@@ -72,8 +72,7 @@ public class MainActivity extends AppCompatActivity implements Callback<Result> 
             locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    System.out.println("Location changed: lat: " + location.getLatitude() + " lon: " + location.getLongitude());
-                }
+                              }
 
                 @Override
                 public void onStatusChanged(String provider, int status, Bundle extras) {

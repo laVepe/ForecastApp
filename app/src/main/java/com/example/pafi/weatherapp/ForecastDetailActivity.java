@@ -128,6 +128,7 @@ public class ForecastDetailActivity extends AppCompatActivity {
         String real_url;
 
         protected String doInBackground(String... urls) {
+            cityName = cityName.replace(" ","%");
             try {
                 InputStream input = new URL(REQUEST.replace("REPLACEME",cityName)).openStream();
 
