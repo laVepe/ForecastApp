@@ -3,48 +3,26 @@ package com.example.pafi.weatherapp.RestAPI;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class Forecast implements Parcelable {
 
-    @SerializedName("dt")
-    @Expose
     private long dt;
-
-    @SerializedName("main")
-    @Expose
     private Main main;
-
-    @SerializedName("weather")
-    @Expose
     private ArrayList<Weather> weather = new ArrayList<>();
-
-    @SerializedName("clouds")
-    @Expose
     private Clouds clouds;
-
-    @SerializedName("wind")
-    @Expose
     private Wind wind;
-
-    @SerializedName("rain")
-    @Expose
     private Rain rain;
-
-    @SerializedName("snow")
-    @Expose
     private Snow snow;
-
-    @SerializedName("sys")
-    @Expose
     private Sys sys;
-
-    @SerializedName("dt_txt")
-    @Expose
     private String dt_txt;
 
     public Forecast() {
@@ -167,38 +145,27 @@ public class Forecast implements Parcelable {
         }
     };
 
+    public String convertToCelsius(double kelvin) {
+        DecimalFormat df = new DecimalFormat("#.#");
+        double celsius = kelvin - 273.15;
+        return df.format(celsius).replace(".", ",") + "°C";
+    }
+
+    public String formatDt(long timeStamp) {
+        DateFormat dateFormat = new SimpleDateFormat("EEE dd.MM.yyyy", Locale.getDefault());
+        Date time = new java.util.Date(timeStamp * 1000);
+        return dateFormat.format(time);
+    }
+
     public static class Main implements Parcelable {
 
-        @SerializedName("temp")
-        @Expose
         private float temp;
-
-        @SerializedName("temp_min")
-        @Expose
         private float temp_min;
-
-        @SerializedName("temp_max")
-        @Expose
         private float temp_max;
-
-        @SerializedName("pressure")
-        @Expose
         private float pressure;
-
-        @SerializedName("sea_level")
-        @Expose
         private float sea_level;
-
-        @SerializedName("grnd_level")
-        @Expose
         private float grnd_level;
-
-        @SerializedName("temp_kf")
-        @Expose
         private float temp_kf;
-
-        @SerializedName("humidity")
-        @Expose
         private int humidity;
 
         public Main() {
@@ -314,8 +281,6 @@ public class Forecast implements Parcelable {
 
     public static class Clouds implements Parcelable {
 
-        @SerializedName("all")
-        @Expose
         private int all;
 
         public int getAll() {
@@ -361,12 +326,7 @@ public class Forecast implements Parcelable {
 
     public static class Wind implements Parcelable {
 
-        @SerializedName("speed")
-        @Expose
         private float speed;
-
-        @SerializedName("deg")
-        @Expose
         private float deg;
 
         public float getSpeed() {
@@ -423,7 +383,6 @@ public class Forecast implements Parcelable {
     public static class Rain implements Parcelable {
 
         @SerializedName("3h")
-        @Expose
         private float h;
 
         public float getH() {
@@ -466,7 +425,6 @@ public class Forecast implements Parcelable {
     public static class Snow implements Parcelable {
 
         @SerializedName("3h")
-        @Expose
         private float h;
 
         public float getH() {
@@ -507,8 +465,7 @@ public class Forecast implements Parcelable {
     }
 
     public static class Sys implements Parcelable {
-        @SerializedName("pod")
-        @Expose
+
         private String pod;
 
         public String getPod() {

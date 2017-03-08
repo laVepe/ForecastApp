@@ -3,4 +3,11 @@
     <string name="search">Search</string>
     <string name="location">My location</string>
     <string name="title_activity_main4">Main4Activity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="max_temp">max</string>
+    <string name="min_temp">min</string>
+    <string name="message_check_location_and_internet_connection">Please check your location and internet connection.</string>
+    <string name="message_gps_turned_off">GPS location is turned off.</string>
 </resources>

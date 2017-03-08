@@ -1,12 +1,20 @@
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="detail"
+            type="com.example.pafi.weatherapp.RestAPI.Result"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorPrimary">
 
     <TextView
-        android:text=""
+        android:text="@{detail.city.country}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/detail_country"
@@ -21,34 +29,33 @@
         android:textColor="@android:color/white"/>
 
     <TextView
-        android:text=""
+        android:text="@{String.format(`%.2f`, detail.city.coord.lat).replace(`,`, `.`)}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/detail_lat"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintLeft_toRightOf="@+id/detail_long"
-        android:maxLength="5"
         app:layout_constraintTop_toTopOf="@+id/detail_long"
         app:layout_constraintBottom_toBottomOf="@+id/detail_long"
-        android:textColor="@android:color/white"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp" />
+        android:textColor="@android:color/white" />
 
     <TextView
-        android:text=""
+        android:text="@{String.format(`%.2f`, detail.city.coord.lon).replace(`,`, `.`) + `, `}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/detail_long"
         app:layout_constraintLeft_toRightOf="@+id/detail_country"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintTop_toTopOf="@+id/detail_country"
-        android:maxLength="6"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:drawableLeft="@drawable/location"
+        android:drawableStart="@drawable/location"
+        android:drawablePadding="4dp"
         android:gravity="fill"
         app:layout_constraintBottom_toBottomOf="@+id/detail_country"
         android:textColor="@android:color/white" />
 
 
 </android.support.constraint.ConstraintLayout>
+</layout>

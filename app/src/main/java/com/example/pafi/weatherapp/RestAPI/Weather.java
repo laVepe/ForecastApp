@@ -1,11 +1,17 @@
 package com.example.pafi.weatherapp.RestAPI;
 
 
+import android.content.Context;
+import android.databinding.BindingAdapter;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
 
 public class Weather implements Parcelable {
 
+    private static final String IMAGE_BASE_URL = "http://openweathermap.org/img/w/";
     private int id;
     private String main;
     private String description;
@@ -41,6 +47,12 @@ public class Weather implements Parcelable {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    @BindingAdapter("icon")
+    public static void setIcon(ImageView imageView, String icon) {
+        Context context = imageView.getContext();
+        Glide.with(context).load(IMAGE_BASE_URL + icon + ".png").into(imageView);
     }
 
     private Weather(Parcel in) {

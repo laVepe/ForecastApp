@@ -1,7 +1,6 @@
 package com.example.pafi.weatherapp;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,11 +8,14 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -28,7 +30,7 @@ import android.widget.Toast;
 import com.example.pafi.weatherapp.RestAPI.Result;
 import com.example.pafi.weatherapp.RestAPI.ResultAPI;
 
-import java.util.Date;
+import java.util.List;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -46,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements Callback<Result> 
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,12 +64,24 @@ public class MainActivity extends AppCompatActivity implements Callback<Result> 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
+        String searchString = preferences.getString(Constants.SEARCH_STRING, "");
+        final SwipeRefreshLayout refresh = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                String searchString = preferences.getString(Constants.SEARCH_STRING, "");
+                if (!isConnected()) showMessage();
+                else {
+                    hideMessage();
+                    if (searchString.equals("")) makeLocationRequest();
+                    else makeSearchRequest();
+                }
+                refresh.setRefreshing(false);
+            }
+        });
+
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            recyclerView.setVisibility(View.GONE);
-            emptyTextView.setVisibility(View.VISIBLE);
-        }
-        else {
+        if (isLocationOn()) {
             locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
@@ -93,25 +106,57 @@ public class MainActivity extends AppCompatActivity implements Callback<Result> 
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
                 return;
             } else {
-
-                String searchString = preferences.getString("searchString", "");
                 if(searchString.equals("")) makeLocationRequest();
                 else makeSearchRequest();
             }
         }
+
+        if(!isConnected()) showMessage(); // Network connection turned off
+
+    }
+
+    private void showMessage() {
+        recyclerView.setVisibility(View.GONE);
+        emptyTextView.setVisibility(View.VISIBLE);
+    }
+
+    private void hideMessage() {
+        recyclerView.setVisibility(View.VISIBLE);
+        emptyTextView.setVisibility(View.GONE);
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
+    private boolean isLocationOn() {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     private void makeLocationRequest() {
         if (locationManager != null) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-            Location location = locationManager
-                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            List<String> providers = locationManager.getProviders(true);
+            Location location = null;
+            for (String provider : providers) {
+                Location l = locationManager.getLastKnownLocation(provider);
+                if (l == null) {
+                    continue;
+                }
+                if (location == null || l.getAccuracy() < location.getAccuracy()) {
+                    // Found best last known location: %s", l);
+                    location = l;
+                }
+            }
             if (location != null) {
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
                 retrofit = new Retrofit.Builder()
-                        .baseUrl("http://api.openweathermap.org/data/")
+                        .baseUrl(Constants.BASE_URL)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
 
@@ -124,25 +169,14 @@ public class MainActivity extends AppCompatActivity implements Callback<Result> 
     }
 
     private void makeSearchRequest() {
-        if (locationManager != null) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-            Location location = locationManager
-                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (location != null) {
-
-                retrofit = new Retrofit.Builder()
-                        .baseUrl("http://api.openweathermap.org/data/")
+        retrofit = new Retrofit.Builder()
+                        .baseUrl(Constants.BASE_URL)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
 
-                ResultAPI weather = retrofit.create(ResultAPI.class);
-                String searchString = preferences.getString("searchString", "");
-                Call<Result> call = weather.getByCity(searchString + ",us");
-                call.enqueue(this);
-            }
-        }
-
+        ResultAPI weather = retrofit.create(ResultAPI.class);
+        String searchString = preferences.getString(Constants.SEARCH_STRING, "");
+        weather.getByCity(searchString + ",us").enqueue(this);
     }
 
     @Override
@@ -151,8 +185,8 @@ public class MainActivity extends AppCompatActivity implements Callback<Result> 
         for(int i = 0; i < size; i++) {
             if(getSupportActionBar() != null) getSupportActionBar().setTitle(getString(R.string.app_name) + " - " + response.body().getCity().getName());
             recyclerView.setAdapter(new SummaryAdapter(response.body()));
-
         }
+        System.out.println("Responses " + size);
     }
 
     @Override
@@ -197,13 +231,14 @@ public class MainActivity extends AppCompatActivity implements Callback<Result> 
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    editor.putString("searchString", query);
+                    editor.putString(Constants.SEARCH_STRING, query);
                     editor.apply();
                     if(retrofit != null) {
                         ResultAPI weather = retrofit.create(ResultAPI.class);
                         Call<Result> call = weather.getByCity(query + ",us");
                         call.enqueue(MainActivity.this);
                     }
+                    else System.out.println("retrofit == null");
                     finalSearchView.onActionViewCollapsed();
                     return true;
                 }
@@ -221,11 +256,16 @@ public class MainActivity extends AppCompatActivity implements Callback<Result> 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.action_location) {
-            editor.putString("searchString", "");
+            editor.putString(Constants.SEARCH_STRING, "");
             editor.apply();
-            makeLocationRequest();
+            if(locationOn()) makeLocationRequest();
+            else Toast.makeText(this, R.string.message_gps_turned_off, Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private boolean locationOn() {
+        locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
 }

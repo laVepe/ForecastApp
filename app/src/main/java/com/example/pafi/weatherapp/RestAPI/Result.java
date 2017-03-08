@@ -11,24 +11,10 @@ import java.util.ArrayList;
 
 public class Result  implements Parcelable {
 
-    @SerializedName("city")
-    @Expose
     private City city;
-
-    @SerializedName("cod")
-    @Expose
     private String cod;
-
-    @SerializedName("message")
-    @Expose
     private float message;
-
-    @SerializedName("cnt")
-    @Expose
     private int cnt;
-
-    @SerializedName("list")
-    @Expose
     private ArrayList<Forecast> list = new ArrayList<>();
 
     public  Result() {
@@ -113,28 +99,11 @@ public class Result  implements Parcelable {
 
     public static class City implements Parcelable {
 
-        @SerializedName("id")
-        @Expose
         private int id;
-
-        @SerializedName("name")
-        @Expose
         private String name;
-
-        @SerializedName("coord")
-        @Expose
         private Coord coord;
-
-        @SerializedName("country")
-        @Expose
         private String country;
-
-        @SerializedName("population")
-        @Expose
         private long population;
-
-        @SerializedName("sys")
-        @Expose
         private Sys sys;
 
         public int getId() {
@@ -221,12 +190,7 @@ public class Result  implements Parcelable {
 
         public static class Coord implements Parcelable {
 
-            @SerializedName("lon")
-            @Expose
             private float lon;
-
-            @SerializedName("lat")
-            @Expose
             private float lat;
 
             public float getLon() {
@@ -283,8 +247,6 @@ public class Result  implements Parcelable {
 
     public static class Sys implements Parcelable {
 
-        @SerializedName("population")
-        @Expose
         private long population;
 
         public long getPopulation() {
